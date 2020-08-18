@@ -1,0 +1,25 @@
+{{- if .Values.dependencies.mongodb.enabled }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: {{ .Values.cronjob.schedule }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: {{ .Values.cronjob.image }}
+            env:
+              - name: MONGODBURL
+                valueFrom:
+                value: {{ .Values.deployment.url }}
+            args:
+              - /bin/sh
+              - -c
+              - mongo $MONGODBURL --eval "db.echos.remove({})"
+                       
+          restartPolicy: {{ .Values.cronjob.restartPolicy }}
+{{- end }}
